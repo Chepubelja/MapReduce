@@ -8,6 +8,8 @@
     python map_reduce.py data/test.txt --num_mappers 10 --num_reducers 10
     python map_reduce.py data/test.txt --num_mappers 10 --num_reducers 10 --use_combiners
 
+    If you want to see the results - uncomment row #51 and run again.
+
 """
 import argparse
 import csv
@@ -46,6 +48,7 @@ class MapReduce(object):
 
         self.reducers = self.create_reducer()
         self.join_threads(self.reducers)
+        # print(self.reduce_result)
 
     def mapper(self):
         """
