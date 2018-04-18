@@ -34,12 +34,10 @@ class MapReduce(object):
         self.reader = self.create_reader()
         self.reader.join()
         self.mappers = self.create_mapper()
-        print("Map", self.map_result)
         if use_combiners:
             self.combiners = self.create_combiner()
             self.join_threads(self.mappers)
             self.join_threads(self.combiners)
-            print("Combine result", self.combine_result)
             self.shuffle_input = self.combine_result
         else:
             self.join_threads(self.mappers)
@@ -93,12 +91,20 @@ class MapReduce(object):
         """
         shuffle_result = []
         temp_dict = {}
-        temp_lst = [(key, value) for d in self.shuffle_input for key, value in d.items()]
-        for pair in temp_lst:
-            if pair[0] in temp_dict.keys():
-                temp_dict[pair[0]].append(pair[1])
-            else:
-                temp_dict[pair[0]] = [pair[1]]
+        if self.use_combiners:
+            temp_lst = [(key, value) for d in self.shuffle_input for key, value in d.items()]
+            for pair in temp_lst:
+                if pair[0] in temp_dict.keys():
+                    temp_dict[pair[0]].append(pair[1])
+                else:
+                    temp_dict[pair[0]] = [pair[1]]
+        else:
+            for lst in self.shuffle_input:
+                for pair in lst:
+                    if pair[0] in temp_dict.keys():
+                        temp_dict[pair[0]].append(pair[1])
+                    else:
+                        temp_dict[pair[0]] = [pair[1]]
         [shuffle_result.append((key, value)) for key, value in temp_dict.items()]
         return shuffle_result
 
